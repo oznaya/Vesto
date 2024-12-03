@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Drag and Keep</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    #container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .box {
+      width: 150px;
+      height: 150px;
+      border: 2px dashed #ccc;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #generate {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+    .item {
+      width: 100px;
+      height: 100px;
+      background-color: lightblue;
+      cursor: grab;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      font-size: 16px;
+      position: absolute;
+      left: calc(50% - 50px);
+    }
+    #theme, #score {
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+    #theme {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <button id="generate">Generate Random Item</button>
+  <div id="theme">Theme: </div>
+  <div id="score">Score: 0</div>
+  <div id="container">
+    <div id="discard" class="box">Discard</div>
+    <div id="keep" class="box">Keep</div>
+  </div>
+
+  <script>
+    const items = ['Dirty Boots', 'Heels', 'Dress Shoes', 'Crocs', 'Sneakers'];
+    const themes = ['Formal', 'Running', 'Casual'];
+    const themeItems = {
+      Formal: ['Heels', 'Dress Shoes'],
+      Running: ['Sneakers', 'Crocs'],
+      Casual: ['Heels', 'Sneakers', 'Crocs', 'Dress Shoes']
+    };
+    const generateButton = document.getElementById('generate');
+    const themeDisplay = document.getElementById('theme');
+    const scoreDisplay = document.getElementById('score');
+    const keepBox = document.getElementById('keep');
+    const discardBox = document.getElementById('discard');
+    let keptItems = [];
+    let currentTheme = '';
+    let score = 0;
+    let itemElement = null;
+
+    function setRandomTheme() {
+      currentTheme = themes[Math.floor(Math.random() * themes.length)];
+      themeDisplay.textContent = `Theme: ${currentTheme}`;
+    }
+
+    function createDraggableItem(name) {
+      if (itemElement) {
+        itemElement.remove();
+      }
+      itemElement = document.createElement('div');
+      itemElement.textContent = name;
+      itemElement.className = 'item';
+      itemElement.draggable = true;
+
+      itemElement.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', name);
+      });
+
+      document.body.appendChild(itemElement);
+    }
+
+    keepBox.addEventListener('dragover', (e) => e.preventDefault());
+    keepBox.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const name = e.dataTransfer.getData('text/plain');
+      keptItems.push(name);
+      if (themeItems[currentTheme].includes(name)) {
+        score++;
+        alert(`${name} matches the theme!`);
+      } else {
+        alert(`${name} does not match the theme.`);
+      }
+      scoreDisplay.textContent = `Score: ${score}`;
+      itemElement.remove();
+      itemElement = null;
+    });
+
+    discardBox.addEventListener('dragover', (e) => e.preventDefault());
+    discardBox.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const name = e.dataTransfer.getData('text/plain');
+      alert(`${name} discarded!`);
+      itemElement.remove();
+      itemElement = null;
+    });
+
+    generateButton.addEventListener('click', () => {
+      if (!currentTheme) {
+        setRandomTheme();
+        setTimeout(() => {
+          alert('Time is up! Restarting game.');
+          score = 0;
+          scoreDisplay.textContent = `Score: ${score}`;
+          setRandomTheme();
+        }, 30000);
+      }
+      const randomItem = items[Math.floor(Math.random() * items.length)];
+      createDraggableItem(randomItem);
+    });
+
+    window.addEventListener('beforeunload', () => {
+      console.log('Kept Items:', keptItems);
+      console.log('Final Score:', score);
+    });
+  </script>
+</body>
+</html>
