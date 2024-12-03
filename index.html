@@ -9,6 +9,9 @@
       font-family: Arial, sans-serif;
       text-align: center;
       margin-top: 50px;
+      background-image: url('ShoesBackground.png');
+      background-size: cover;
+      background-position: center;
     }
     #container {
       display: flex;
@@ -34,7 +37,6 @@
     .item {
       width: 100px;
       height: 100px;
-      background-color: lightblue;
       cursor: grab;
       display: flex;
       align-items: center;
@@ -43,6 +45,11 @@
       font-size: 16px;
       position: absolute;
       left: calc(50% - 50px);
+    }
+    .item img {
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 10px;
     }
     #theme, #score {
       font-size: 18px;
@@ -64,12 +71,18 @@
   </div>
 
   <script>
-    const items = ['Dirty Boots', 'Heels', 'Dress Shoes', 'Crocs', 'Sneakers'];
+    const items = [
+      { name: 'Mary-Janes', img: 'MaryJanes.png' },
+      { name: 'Loafers', img: 'Loafers.png' },
+      { name: 'Dirty Boots', img: 'DirtyBoots.png' },
+      { name: 'Crocs', img: 'Crocs.png' },
+      { name: 'Sneakers', img: 'Sneaks.png' }
+    ];
     const themes = ['Formal', 'Running', 'Casual'];
     const themeItems = {
-      Formal: ['Heels', 'Dress Shoes'],
-      Running: ['Sneakers', 'Crocs'],
-      Casual: ['Heels', 'Sneakers', 'Crocs', 'Dress Shoes']
+      Formal: ['Mary-Janes', 'Loafers'],
+        Running: ['Sneakers'],
+        Casual: ['Crocs']
     };
     const generateButton = document.getElementById('generate');
     const themeDisplay = document.getElementById('theme');
@@ -86,17 +99,22 @@
       themeDisplay.textContent = `Theme: ${currentTheme}`;
     }
 
-    function createDraggableItem(name) {
+    function createDraggableItem(item) {
       if (itemElement) {
         itemElement.remove();
       }
       itemElement = document.createElement('div');
-      itemElement.textContent = name;
       itemElement.className = 'item';
       itemElement.draggable = true;
 
+      const img = document.createElement('img');
+      img.src = item.img;
+      img.alt = item.name;
+
+      itemElement.appendChild(img);
+
       itemElement.addEventListener('dragstart', (e) => {
-        e.dataTransfer.setData('text/plain', name);
+        e.dataTransfer.setData('text/plain', item.name);
       });
 
       document.body.appendChild(itemElement);
